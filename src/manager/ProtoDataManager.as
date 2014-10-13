@@ -86,6 +86,13 @@ package manager
 		public function refreshXmlFileList():void
 		{
 			var f:File = File.documentsDirectory.resolvePath(ConfigManager.getInstance().protoDocPath);
+			if(!f.exists) // 文件不存在
+			{
+				
+				dispecher.dispatchToView(new ParamEvent(AllEvent.SHOW_ALERT_TIPS, {
+					text:ConfigManager.getInstance().protoDocPath+" - 目录不存在"}) );
+				return;
+			}
 			var fileList:Array = f.getDirectoryListing();
 			protoFileNameList = new ArrayCollection();
 			for (var i:int = 0; i < fileList.length; i++) 
