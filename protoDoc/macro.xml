@@ -1,0 +1,8 @@
+<xml>
+	<macro name="TestMyLove" desc="100协议的类对象">
+		<property name="mylove" type="int32" desc="我的爱人" />
+	</macro>
+	<macro name="KillYou" desc="杀死你-自静一类型">
+		<property name="knife" type="string" desc="小刀的名字" />
+	</macro>
+</xml>
