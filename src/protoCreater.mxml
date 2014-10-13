@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="400" height="424"
+					   creationComplete="onWindowCreateComplete(event)">
+	<fx:Script>
+		<![CDATA[
+			import enum.CodeType;
+			
+			import event.AllEvent;
+			
+			import face2wind.event.ParamEvent;
+			import face2wind.loading.RuntimeResourceManager;
+			import face2wind.manager.EventManager;
+			
+			import manager.CodeCreaterManager;
+			import manager.ConfigManager;
+			import manager.ProtoDataManager;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			/**
+			 * 事件统一派发器
+			 */
+			private var eManager:EventManager = EventManager.getInstance();
+			
+			/**
+			 * 协议生成管理器
+			 */
+			private var ccManager:CodeCreaterManager = CodeCreaterManager.getInstance();
+			
+			/**
+			 * 窗口初始化完毕
+			 */
+			protected function onWindowCreateComplete(event:FlexEvent):void
+			{
+				// 初始化可用的库
+				EventManager.InitBuses();
+				RuntimeResourceManager.getInstance().startLoadNow = true;
+				
+				eManager.bindToView(AllEvent.SHOW_ALERT_TIPS, onShowAlertTipsHandler);
+				eManager.bindToModel(AllEvent.PROTO_LIST_UPDATE, onProtoListUpdateHandler);
+				
+				ConfigManager.getInstance().loadConfig(onLoadBaseXmlComplete);
+			}
+			
+			/**
+			 * 基础配置加载完毕
+			 */
+			private function onLoadBaseXmlComplete():void
+			{
+				ProtoDataManager.getInstance().refreshXmlFileList();
+				
+//				ProtoDataManager.getInstance().loadAllConfig();
+			}
+			
+			/**
+			 * alert弹窗确认按钮点击（仅隐藏弹窗）
+			 */
+			protected function iknowBtn_clickHandler(event:MouseEvent):void
+			{
+				alertMsgContainer.visible = false;
+			}
+			
+			/**
+			 * 生成所有协议代码
+			 */
+			protected function createAllBtn_clickHandler(event:MouseEvent):void
+			{
+				ccManager.createAllProtoCode();
+			}
+			
+			/**
+			 * 生成单个协议代码
+			 */
+			protected function createSingleBtn_clickHandler(event:MouseEvent):void
+			{
+				if(-1 == protoFileList.selectedIndex)
+				{
+					eManager.dispatchToView(new ParamEvent(AllEvent.SHOW_ALERT_TIPS, {text:"请先选中一个协议"}) );
+					return;
+				}
+				ccManager.createOneProtoCode(protoFileList.selectedItem);
+			}
+			
+			/**
+			 * 显示弹框tips
+			 */
+			private function onShowAlertTipsHandler(e:ParamEvent):void
+			{
+				alertMsgContainer.visible = true;
+				alertMsgTxt.text = e.param.text;
+			}
+			
+			/**
+			 * 刷新协议列表按钮点击
+			 */
+			protected function refleshXmlListBtn_clickHandler(event:MouseEvent):void
+			{
+				ProtoDataManager.getInstance().refreshXmlFileList();
+			}
+			
+			private function onProtoListUpdateHandler(e:ParamEvent):void
+			{
+				protoFileList.dataProvider = ProtoDataManager.getInstance().protoFileNameList;
+				protoNumTxt.text = "协议总数：" + protoFileList.dataProvider.length;
+			}
+			
+			protected function codeType_clickHandler(e:MouseEvent):void
+			{
+				var check:CheckBox = e.currentTarget as CheckBox;
+				var codeType:int = -1;
+				switch(check)
+				{
+					case as3:codeType=CodeType.AS3;break;
+					case erlang:codeType=CodeType.ERLANG;break;
+					case cplusplus:codeType=CodeType.C_PLUS_PLUS;break;
+					case python:codeType=CodeType.PYTHON;break;
+				}
+				if(check.selected)
+					ccManager.addTargetCodeTypes(codeType);
+				else
+					ccManager.removeTargetCodeTypes(codeType);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:Button id="createAllBtn" x="230" y="207" width="146" height="27" label="生成全部协议" click="createAllBtn_clickHandler(event)"/>
+	<s:Button id="createSingleBtn" x="230" y="308" width="146" height="27" label="生成选中的协议" click="createSingleBtn_clickHandler(event)"/>
+	<s:Button id="refleshXmlListBtn" x="10" y="112" width="98" height="27" label="刷新协议列表" click="refleshXmlListBtn_clickHandler(event)"/>
+	<s:List id="protoFileList" x="10" y="143" width="200" height="251"></s:List>
+	<s:Label id="protoNumTxt" x="127" y="121" text="协议总数："/>
+	<s:BorderContainer x="10" y="6" width="380" height="103">
+		<s:CheckBox id="as3" x="20" y="56" label="AS3" click="codeType_clickHandler(event)" selected="true"/>
+		<s:CheckBox id="erlang" x="80" y="56" label="Erlang" click="codeType_clickHandler(event)"/>
+		<s:CheckBox id="cplusplus" x="140" y="56" label="C++" click="codeType_clickHandler(event)"/>
+		<s:CheckBox id="python" x="200" y="56" label="Python" click="codeType_clickHandler(event)"/>
+		<s:Label x="75" y="10" fontSize="19" text="选择要生成的代码语言类型"/>
+	</s:BorderContainer>
+	<s:BorderContainer id="alertMsgContainer" x="0" y="0" width="400" height="400"
+					   backgroundAlpha="0.81" borderVisible="false" visible="false">
+		<s:TextArea id="alertMsgTxt" x="0" y="0" width="400" height="349" borderVisible="false"
+					color="#024CE3" contentBackgroundAlpha="0.0" editable="false" fontSize="24"
+					text="这是最上层的居中显示文本~~~" textAlign="center" verticalAlign="middle"/>
+		<s:Button id="iknowBtn" x="135" y="357" width="122" height="35" label="我知道了"
+				  click="iknowBtn_clickHandler(event)" fontSize="16"/>
+	</s:BorderContainer>
+</s:WindowedApplication>
