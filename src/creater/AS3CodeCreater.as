@@ -6,6 +6,7 @@ package creater
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
+	import flash.utils.Dictionary;
 	
 	import manager.ConfigManager;
 	import manager.ProtoDataManager;
@@ -26,6 +27,8 @@ package creater
 			if(instance)
 				throw new Error("AS3CodeCreater is singleton class and allready exists!");
 			instance = this;
+			
+			_subClassDic = new Dictionary();
 		}
 		
 		/**
@@ -43,22 +46,29 @@ package creater
 			return instance;
 		}
 		
+		/**
+		 * 嵌套的类信息，读取的时候创建，用于生成commandmap 
+		 */		
+		private var _subClassDic:Dictionary;
+		
 		public function createOneProtoCode(protoXmlName:String):void
 		{
 			removeCustomData();
-			createCommandMap();
+//			createCommandMap();
 			createAllMacroClass();
 			doCreateProtoCode(protoXmlName);
+			createCommandMap();
 		}
 		
 		public function createAllProtoCode():void
 		{
 			removeCustomData();
-			createCommandMap();
+//			createCommandMap();
 			createAllMacroClass();
 			var allProtoNameList:Array = ProtoDataManager.getInstance().protoFileNameList.source;
 			for (var i:int = 0; i < allProtoNameList.length; i++) 
 				doCreateProtoCode(allProtoNameList[i]);
+			createCommandMap();
 		}
 		
 		/**
@@ -113,7 +123,7 @@ package creater
 					getAllExtClassNameList(s2cExtClassNameList, proVo.s2cProtoVo);
 				}
 			}
-			codeStr = codeStr + "\n	/**\n	 * 这个类描述\n	 * @author face2wind\n	 */\n	public class GameCommandMap extends CommandMap" +
+			codeStr = codeStr + "\n	/**\n	 * 协议字典类<br/>\n	 * ( 此文件由工具生成，勿手动修改)\n	 * @author face2wind\n	 */\n	public class GameCommandMap extends CommandMap" +
 				"\n	{\n		public function GameCommandMap()\n		{\n			super();\n		}\n\n		/**\n		 *  初始化S2C的协议类对象列表\n		 */" +
 				"\n		protected override function initScmdClassDic():void\n		{\n";
 			var extClassNameList:Array = s2cExtClassNameList;//c2sExtClassNameList.concat(s2cExtClassNameList);
@@ -149,6 +159,12 @@ package creater
 		private function getAttributeCode(attributeStrList:Array, className:String):void
 		{
 			var forAttributesVo:ProtocalClassVo = ProtoDataManager.getInstance().getProtoClassVo(className);
+			if(null == forAttributesVo)
+				forAttributesVo = _subClassDic[className];
+			if(null == forAttributesVo)
+				return;
+			if(null == forAttributesVo.propertyList)
+				return;
 			var codeStr:String = "\n			_cmdAttributes[\""+className+"\"] = [";
 			for (var i:int = 0; i < forAttributesVo.propertyList.length; i++) 
 			{
@@ -183,6 +199,8 @@ package creater
 		private function getAllExtClassNameList(extClassNameList:Array, protoClassVo:ProtocalClassVo):void
 		{
 			var subType:String = "";
+			if(null == protoClassVo.propertyList)
+				return;
 			for (var i:int = 0; i < protoClassVo.propertyList.length; i++) 
 			{
 				var propertyVo:PropertyVo = protoClassVo.propertyList[i];
@@ -255,7 +273,7 @@ package creater
 					codeStr = "package socketCommand.c2s.cs" + protoListVo.protoListId;
 					codeStr = codeStr + "\n{";
 					codeStr = codeStr + "\n	import socketCommand.customData.*\n";//getExtImport(c2s.propertyList, "CS"+protoVo.protoId);
-					codeStr = codeStr + "\n	/**\n	 * "+protoVo.protoDesc+"\n	 * @author face2wind\n	 */\n	public class CS"+protoVo.protoId+
+					codeStr = codeStr + "\n	/**\n	 * "+protoVo.protoDesc+"<br/>\n	 * ( 此文件由工具生成，勿手动修改)\n	 * @author face2wind\n	 */\n	public class CS"+protoVo.protoId+
 						"\n	{\n		public function CS"+protoVo.protoId+"()\n		{\n		}";
 					for (j = 0; j < c2s.propertyList.length; j++) 
 					{
@@ -274,7 +292,7 @@ package creater
 					codeStr = "package socketCommand.s2c.sc" + protoListVo.protoListId;
 					codeStr = codeStr + "\n{";
 					codeStr = codeStr + "\n	import socketCommand.customData.*\n";//getExtImport(s2c.propertyList, "SC"+protoVo.protoId);
-					codeStr = codeStr + "\n	/**\n	 * "+protoVo.protoDesc+"\n	 * @author face2wind\n	 */\n	public class SC"+protoVo.protoId+
+					codeStr = codeStr + "\n	/**\n	 * "+protoVo.protoDesc+"<br/>\n	 * ( 此文件由工具生成，勿手动修改)\n	 * @author face2wind\n	 */\n	public class SC"+protoVo.protoId+
 						"\n	{\n		public function SC"+protoVo.protoId+"()\n		{\n		}";
 					for (j = 0; j < s2c.propertyList.length; j++) 
 					{
@@ -297,6 +315,7 @@ package creater
 								createPvo.classDesc = propertyVo.desc;
 								createPvo.propertyList = propertyVo.subPropertyVos;
 								createProtoClass(createPvo);
+								_subClassDic[subType] = createPvo;
 							}
 							codeStr = codeStr + " = ["+subType+"]";
 						}
@@ -319,7 +338,7 @@ package creater
 		{
 			var srcPath:String = ConfigManager.getInstance().configXml.as3SrcPath + "/socketCommand/customData/";
 			var codeStr:String = "package socketCommand.customData\n{\n	/**\n	 * "+createPvo.classDesc+
-				"\n	 * @author face2wind\n	 */\n	public class "+createPvo.className+"\n	{\n		public function "+createPvo.className+"()\n		{\n		}\n";
+				"<br/>\n	 * ( 此文件由工具生成，勿手动修改)\n	 * @author face2wind\n	 */\n	public class "+createPvo.className+"\n	{\n		public function "+createPvo.className+"()\n		{\n		}\n";
 			var propertyVo:PropertyVo;
 			for (var i:int = 0; i < createPvo.propertyList.length; i++) 
 			{
@@ -340,6 +359,7 @@ package creater
 						createPvo.classDesc = propertyVo.desc;
 						createPvo.propertyList = propertyVo.subPropertyVos;
 						createProtoClass(createPvo);
+						_subClassDic[subType] = createPvo;
 					}
 					codeStr = codeStr + " = ["+subType+"]";
 				}

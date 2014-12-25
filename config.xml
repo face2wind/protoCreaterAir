@@ -1,6 +1,8 @@
 ﻿<xml>
   <!-- 协议xml目录 -->
-  <protoPath>D:\flash\protoDoc</protoPath>
+  <protoPath>E:\study\baifen\protoDoc</protoPath>
   <!-- AS3的src源码目录 -->
-  <as3SrcPath>D:\flash\tryAs\src</as3SrcPath>
+  <as3SrcPath>E:\study\baifen\baifenClient\src</as3SrcPath>
+  <!-- C++的src源码目录 -->
+  <cppSrcPath>>E:\study\baifen\baifenServer\net</cppSrcPath>
 </xml>

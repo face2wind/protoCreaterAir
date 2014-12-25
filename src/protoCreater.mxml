@@ -136,9 +136,9 @@
 	<s:List id="protoFileList" x="10" y="143" width="200" height="251"></s:List>
 	<s:Label id="protoNumTxt" x="127" y="121" text="协议总数："/>
 	<s:BorderContainer x="10" y="6" width="380" height="103">
-		<s:CheckBox id="as3" x="20" y="56" label="AS3" click="codeType_clickHandler(event)" selected="true"/>
+		<s:CheckBox id="as3" x="20" y="56" label="AS3" click="codeType_clickHandler(event)"/>
 		<s:CheckBox id="erlang" x="80" y="56" label="Erlang" click="codeType_clickHandler(event)"/>
-		<s:CheckBox id="cplusplus" x="140" y="56" label="C++" click="codeType_clickHandler(event)"/>
+		<s:CheckBox id="cplusplus" x="140" y="56" label="C++" click="codeType_clickHandler(event)" selected="true"/>
 		<s:CheckBox id="python" x="200" y="56" label="Python" click="codeType_clickHandler(event)"/>
 		<s:Label x="75" y="10" fontSize="19" text="选择要生成的代码语言类型"/>
 	</s:BorderContainer>

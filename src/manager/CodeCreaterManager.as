@@ -1,6 +1,7 @@
 package manager
 {
 	import creater.AS3CodeCreater;
+	import creater.CppCodeCreater;
 	import creater.ICodeCreater;
 	
 	import enum.CodeType;
@@ -43,7 +44,7 @@ package manager
 		/**
 		 * 生成的代码类型列表 
 		 */		
-		private var _targetCodeTypes:Array = [CodeType.AS3];
+		private var _targetCodeTypes:Array = [CodeType.C_PLUS_PLUS];
 		/**
 		 * 增加生成的代码类型
 		 * @param typeList
@@ -73,6 +74,7 @@ package manager
 			switch(type)
 			{
 				case CodeType.AS3:creater=AS3CodeCreater.getInstance();break;
+				case CodeType.C_PLUS_PLUS:creater=CppCodeCreater.getInstance();break;
 			}
 			return creater;
 		}

@@ -326,6 +326,14 @@ package manager
 		}
 		
 		/**
+		 *  生成一个新的协议类
+		 */		
+		private function analyzeClassProtoVo():void
+		{
+			
+		}
+		
+		/**
 		 * 解析协议变量属性数据 
 		 * @param xmlData
 		 */		
