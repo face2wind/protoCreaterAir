@@ -14,7 +14,7 @@ package creater
 	import vo.ProtocalClassVo;
 	import vo.ProtocalListVo;
 	import vo.ProtocalVo;
-
+	
 	/**
 	 * 
 	 * @author face2wind
@@ -46,15 +46,79 @@ package creater
 		public function createOneProtoCode(protoXmlName:String):void
 		{
 			createAllMacroClass();
+			createCommandMap();
 			doCreateProtoCode(protoXmlName);
 		}
 		
 		public function createAllProtoCode():void
 		{
 			createAllMacroClass();
+			createCommandMap();
 			var allProtoNameList:Array = ProtoDataManager.getInstance().protoFileNameList.source;
 			for (var i:int = 0; i < allProtoNameList.length; i++) 
 				doCreateProtoCode(allProtoNameList[i]);
+		}
+		
+		/**
+		 * 创建映射类代码 
+		 */		
+		private function createCommandMap():void
+		{
+			var head:String = "#ifndef _COMMAND_MAP_HPP_\n#define _COMMAND_MAP_HPP_\n\n#include <map>\n#include <socketMessage.h>\n\n";
+			var body:String = "\nnamespace face2wind {\n\n  class CommandMap\n  {\n    std::map<short, SocketMessage*> csMessages;\n" +
+				"    std::map<short, SocketMessage*> scMessages;\n\n  public:\n    CommandMap(){\n";
+			var tail:String = "    }\n    ~CommandMap(){\n      csMessages.clear();\n      scMessages.clear();\n" +
+				"    }\n\n    static CommandMap &GetInstance();\n\n    SocketMessage *GetCSMsgObject(short cmd){\n" +
+				"      if(0 < csMessages.count(cmd))\n	return csMessages[cmd];\n      else\n	return NULL;\n    }\n\n" +
+				"    SocketMessage *GetSCMsgObject(short cmd){\n      if(0 < scMessages.count(cmd))\n" +
+				"	return scMessages[cmd];\n      else\n	return NULL;\n    }\n  };\n}\n";
+			
+			var allProtoNameList:Array = ProtoDataManager.getInstance().protoFileNameList.source;
+			for (var j:int = 0; j < allProtoNameList.length; j++) 
+			{
+				var protoXmlName:String = allProtoNameList[j];
+				var reg:RegExp = /^[0-9]*/;
+				var protoID:String = protoXmlName.match(reg)[0];
+				if(null == protoID || "" == protoID)
+					return;
+				var protoListVo:ProtocalListVo = ProtoDataManager.getInstance().getProtocolList(protoID);
+				if(null == protoListVo)
+					return;
+				var csHead:String = "";
+				var scHead:String = "";
+				var csBody:String = "";
+				var scBody:String = "";
+				for (var i:int = 0; i < protoListVo.protocolVoList.length; i++) 
+				{
+					var protoVo:ProtocalVo = protoListVo.protocolVoList[i] as ProtocalVo;
+					var c2s:ProtocalClassVo = protoVo.c2sProtoVo;
+					var s2c:ProtocalClassVo = protoVo.s2cProtoVo;
+					if(null != c2s.propertyList) { // 客户端TO服务端，有数据，则创建对应类
+						csHead += ("#include <c2s/cs"+protoID+"/"+c2s.className+".h>\n");
+						csBody += ("      csMessages["+protoVo.protoId+"] = new "+c2s.className+"();\n");
+					}
+					if(null != s2c.propertyList) { // 服务端TO客户端，有数据，则创建对应类
+						scHead += ("#include <s2c/sc"+protoID+"/"+s2c.className+".h>\n");
+						scBody += ("      scMessages["+protoVo.protoId+"] = new "+s2c.className+"();\n");
+					}
+				}
+				head += (csHead + "\n"+ scHead);
+				body += (csBody + "\n"+ scBody);
+			}
+			var srcPath:String = ConfigManager.getInstance().configXml.cppSrcPath ;
+			var fileStream:FileStream = new FileStream();
+			var filePath:File;
+			filePath = File.documentsDirectory.resolvePath(srcPath + "/CommandMap.h");
+			fileStream.open(filePath, FileMode.WRITE);
+			fileStream.writeUTFBytes(head+body+tail);
+			fileStream.close();
+			
+			var cppStr:String = "#include <commandMap.h>\n\nnamespace face2wind {\n\n" +
+				"  CommandMap &CommandMap::GetInstance() {\n    static CommandMap m;\n    return m;\n  }\n\n}";
+			filePath = File.documentsDirectory.resolvePath(srcPath + "/CommandMap.cpp");
+			fileStream.open(filePath, FileMode.WRITE);
+			fileStream.writeUTFBytes(head+body+tail);
+			fileStream.close();
 		}
 		
 		/**
@@ -206,9 +270,9 @@ package creater
 			var packSrc:String = "\n\n  virtual face2wind::ByteArray *PackMsg()\n  {\n    face2wind::ByteArray *by = new face2wind::ByteArray();\n";
 			var unpackStr:String = "\n\n  virtual void UnpackMsg(face2wind::ByteArray *data)\n  {\n";
 			var j:int;
-//			codeStr = "#ifndef _"+scStr+protoVo.protoId+"_H_\n#define _"+scStr+protoVo.protoId+"_H_\n\n#include <socketMessage.h>\n" +
-//				"#include <byteArray.h>\n#include <string>\n#include <vector>\n\n\n/**\n * "+protoVo.protoDesc+"\n * @author face2wind\n */\n" +
-//				"struct "+scStr+protoVo.protoId+" : public face2wind::SocketMessage\n{";
+			//			codeStr = "#ifndef _"+scStr+protoVo.protoId+"_H_\n#define _"+scStr+protoVo.protoId+"_H_\n\n#include <socketMessage.h>\n" +
+			//				"#include <byteArray.h>\n#include <string>\n#include <vector>\n\n\n/**\n * "+protoVo.protoDesc+"\n * @author face2wind\n */\n" +
+			//				"struct "+scStr+protoVo.protoId+" : public face2wind::SocketMessage\n{";
 			var includeHead:String = "#ifndef _"+scStr+protoVo.protoId+"_H_\n#define _"+scStr+protoVo.protoId+"_H_\n\n#include <socketMessage.h>\n" +
 				"#include <byteArray.h>\n#include <string>\n#include <vector>\n";
 			codeStr = "\n\n/**\n * "+protoVo.protoDesc+"\n * ( 此文件由工具生成，勿手动修改)\n * @author face2wind\n */\n" +
@@ -227,10 +291,10 @@ package creater
 					) // 只有一个非基础属性，则直接用这个属性做为数组的类型，否则，生成一个类
 					{
 						subType = propertyVo.subPropertyVos[0].type;
-//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						packSrc = packSrc + "      by->"+getWriteType(propertyVo.subPropertyVos[0].type)+"(*it);\n";
-//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						unpackStr = unpackStr + "      (*it) = data->"+getReadType(propertyVo.subPropertyVos[0].type)+"();\n";
+						//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+						//						packSrc = packSrc + "      by->"+getWriteType(propertyVo.subPropertyVos[0].type)+"(*it);\n";
+						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+						//						unpackStr = unpackStr + "      (*it) = data->"+getReadType(propertyVo.subPropertyVos[0].type)+"();\n";
 					}
 					else
 					{
@@ -240,10 +304,10 @@ package creater
 						createPvo.classDesc = propertyVo.desc;
 						createPvo.propertyList = propertyVo.subPropertyVos;
 						createProtoClass(createPvo);
-//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg() );\n";
-//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
+						//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+						//						packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg() );\n";
+						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+						//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
 					}
 					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+"*>::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
 					packSrc = packSrc + "      by->ReadFromByteArray( (*it)->PackMsg() );\n";
@@ -303,10 +367,10 @@ package creater
 					) // 只有一个非基础属性，则直接用这个属性做为数组的类型，否则，生成一个类
 					{
 						subType = propertyVo.subPropertyVos[0].type;
-//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						packSrc = packSrc + "      by->"+getWriteType(propertyVo.subPropertyVos[0].type)+"(*it);\n";
-//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						unpackStr = unpackStr + "      (*it) = data->"+getReadType(propertyVo.subPropertyVos[0].type)+"();\n";
+						//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+						//						packSrc = packSrc + "      by->"+getWriteType(propertyVo.subPropertyVos[0].type)+"(*it);\n";
+						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+						//						unpackStr = unpackStr + "      (*it) = data->"+getReadType(propertyVo.subPropertyVos[0].type)+"();\n";
 					}
 					else
 					{
@@ -316,8 +380,8 @@ package creater
 						createPvo.classDesc = propertyVo.desc;
 						createPvo.propertyList = propertyVo.subPropertyVos;
 						createProtoClass(createPvo);
-//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
+						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+						//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
 					}
 					packSrc = packSrc + "    for (std::vector<"+subType+"*>::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
 					packSrc = packSrc + "      by->ReadFromByteArray( (*it)->PackMsg() );\n";
