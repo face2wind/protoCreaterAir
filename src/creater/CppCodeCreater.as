@@ -16,7 +16,7 @@ package creater
 	import vo.ProtocalVo;
 	
 	/**
-	 * 
+	 * C++协议代码创建器
 	 * @author face2wind
 	 */
 	public class CppCodeCreater implements ICodeCreater
@@ -71,7 +71,7 @@ package creater
 				"    }\n\n    static CommandMap &GetInstance();\n\n    SocketMessage *GetCSMsgObject(short cmd){\n" +
 				"      if(0 < csMessages.count(cmd))\n	return csMessages[cmd];\n      else\n	return NULL;\n    }\n\n" +
 				"    SocketMessage *GetSCMsgObject(short cmd){\n      if(0 < scMessages.count(cmd))\n" +
-				"	return scMessages[cmd];\n      else\n	return NULL;\n    }\n  };\n}\n";
+				"	return scMessages[cmd];\n      else\n	return NULL;\n    }\n  };\n}\n\n#endif // _COMMAND_MAP_HPP_";
 			
 			var allProtoNameList:Array = ProtoDataManager.getInstance().protoFileNameList.source;
 			for (var j:int = 0; j < allProtoNameList.length; j++) 
@@ -117,7 +117,7 @@ package creater
 				"  CommandMap &CommandMap::GetInstance() {\n    static CommandMap m;\n    return m;\n  }\n\n}";
 			filePath = File.documentsDirectory.resolvePath(srcPath + "/CommandMap.cpp");
 			fileStream.open(filePath, FileMode.WRITE);
-			fileStream.writeUTFBytes(head+body+tail);
+			fileStream.writeUTFBytes(cppStr);
 			fileStream.close();
 		}
 		

@@ -4,5 +4,5 @@
   <!-- AS3的src源码目录 -->
   <as3SrcPath>E:\study\baifen\baifenClient\src</as3SrcPath>
   <!-- C++的src源码目录 -->
-  <cppSrcPath>>E:\study\baifen\baifenServer\net</cppSrcPath>
+  <cppSrcPath>E:\study\baifen\baifenServer\net</cppSrcPath>
 </xml>
