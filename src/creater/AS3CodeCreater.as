@@ -310,12 +310,12 @@ package creater
 							else
 							{
 								subType = "SC"+protoVo.protoId+"_"+propertyVo.name;
-								var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
-								createPvo.className = subType;
-								createPvo.classDesc = propertyVo.desc;
-								createPvo.propertyList = propertyVo.subPropertyVos;
-								createProtoClass(createPvo);
-								_subClassDic[subType] = createPvo;
+//								var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
+//								createPvo.className = subType;
+//								createPvo.classDesc = propertyVo.desc;
+//								createPvo.propertyList = propertyVo.subPropertyVos;
+//								createProtoClass(createPvo);
+//								_subClassDic[subType] = createPvo;
 							}
 							codeStr = codeStr + " = ["+subType+"]";
 						}
@@ -354,12 +354,12 @@ package creater
 					else  // 类里有数组内容，迭代创建数组里的子类
 					{
 						subType = createPvo.className+"_"+propertyVo.name;
-						var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
-						createPvo.className = subType;
-						createPvo.classDesc = propertyVo.desc;
-						createPvo.propertyList = propertyVo.subPropertyVos;
-						createProtoClass(createPvo);
-						_subClassDic[subType] = createPvo;
+//						var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
+//						createPvo.className = subType;
+//						createPvo.classDesc = propertyVo.desc;
+//						createPvo.propertyList = propertyVo.subPropertyVos;
+//						createProtoClass(createPvo);
+//						_subClassDic[subType] = createPvo;
 					}
 					codeStr = codeStr + " = ["+subType+"]";
 				}

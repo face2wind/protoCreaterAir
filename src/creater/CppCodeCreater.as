@@ -74,6 +74,10 @@ package creater
 				"	return scMessages[cmd];\n      else\n	return NULL;\n    }\n  };\n}\n\n#endif // _COMMAND_MAP_HPP_";
 			
 			var allProtoNameList:Array = ProtoDataManager.getInstance().protoFileNameList.source;
+			var csAllHead:String = "";
+			var scAllHead:String = "";
+			var csAllBody:String = "";
+			var scAllBody:String = "";
 			for (var j:int = 0; j < allProtoNameList.length; j++) 
 			{
 				var protoXmlName:String = allProtoNameList[j];
@@ -102,9 +106,13 @@ package creater
 						scBody += ("      scMessages["+protoVo.protoId+"] = new "+s2c.className+"();\n");
 					}
 				}
-				head += (csHead + "\n"+ scHead);
-				body += (csBody + "\n"+ scBody);
+				csAllHead += csHead;
+				scAllHead += scHead;
+				csAllBody += csBody;
+				scAllBody += scBody;
 			}
+			head += (csAllHead + "\n"+ scAllHead);
+			body += (csAllBody + "\n"+ scAllBody);
 			var srcPath:String = ConfigManager.getInstance().configXml.cppSrcPath ;
 			var fileStream:FileStream = new FileStream();
 			var filePath:File;
@@ -173,7 +181,7 @@ package creater
 		 */		
 		private function getReadType(type:String):String
 		{
-			var realType:String = type;
+			var realType:String = "";
 			switch(type)
 			{
 				case SocketDataType.INT8:realType="ReadChar";break;
@@ -197,7 +205,7 @@ package creater
 		 */		
 		private function getWriteType(type:String):String
 		{
-			var realType:String = type;
+			var realType:String = "";
 			switch(type)
 			{
 				case SocketDataType.INT8:realType="WriteChar";break;
@@ -270,9 +278,6 @@ package creater
 			var packSrc:String = "\n\n  virtual face2wind::ByteArray *PackMsg()\n  {\n    face2wind::ByteArray *by = new face2wind::ByteArray();\n";
 			var unpackStr:String = "\n\n  virtual void UnpackMsg(face2wind::ByteArray *data)\n  {\n";
 			var j:int;
-			//			codeStr = "#ifndef _"+scStr+protoVo.protoId+"_H_\n#define _"+scStr+protoVo.protoId+"_H_\n\n#include <socketMessage.h>\n" +
-			//				"#include <byteArray.h>\n#include <string>\n#include <vector>\n\n\n/**\n * "+protoVo.protoDesc+"\n * @author face2wind\n */\n" +
-			//				"struct "+scStr+protoVo.protoId+" : public face2wind::SocketMessage\n{";
 			var includeHead:String = "#ifndef _"+scStr+protoVo.protoId+"_H_\n#define _"+scStr+protoVo.protoId+"_H_\n\n#include <socketMessage.h>\n" +
 				"#include <byteArray.h>\n#include <string>\n#include <vector>\n";
 			codeStr = "\n\n/**\n * "+protoVo.protoDesc+"\n * ( 此文件由工具生成，勿手动修改)\n * @author face2wind\n */\n" +
@@ -299,26 +304,34 @@ package creater
 					else
 					{
 						subType = scStr+protoVo.protoId+"_"+propertyVo.name;
-						var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
-						createPvo.className = subType;
-						createPvo.classDesc = propertyVo.desc;
-						createPvo.propertyList = propertyVo.subPropertyVos;
-						createProtoClass(createPvo);
-						//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-						//						packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg() );\n";
-						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-						//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
+//						var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
+//						createPvo.className = subType;
+//						createPvo.classDesc = propertyVo.desc;
+//						createPvo.propertyList = propertyVo.subPropertyVos;
+//						createProtoClass(createPvo);
+//						//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+//						//						packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg() );\n";
+//						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+//						//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
 					}
 					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+"*>::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-					packSrc = packSrc + "      by->ReadFromByteArray( (*it)->PackMsg() );\n";
+					packSrc = packSrc + "      by->ReadFromByteArray( (*it)->PackMsg());\n";
 					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    for (int i = 0; i < "+
 						propertyVo.name+"Len; ++i){\n      "+subType+" *tmp_"+subType+" = new "+subType+"();\n" +
-						"      tmp_"+subType+"->UnpackMsg(data);\n      testArr.push_back(tmp_"+subType+");\n    }";
+						"      tmp_"+subType+"->UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
 					includeHead += "#include <customData/"+subType+".h>\n";
 					codeStr = codeStr +transformType(propertyVo.type)+"<"+subType+"*> "+propertyVo.name+" ;";
 				}else{
-					packSrc = packSrc + "    by->"+getWriteType(propertyVo.type)+"("+propertyVo.name+");\n";
-					unpackStr = unpackStr + "    "+propertyVo.name+" = data->"+getReadType(propertyVo.type)+"();\n";
+					var tmpWriteType:String = getWriteType(propertyVo.type);
+					if("" == tmpWriteType)
+						packSrc = packSrc + "    by->ReadFromByteArray("+propertyVo.name+".PackMsg());\n";
+					else
+						packSrc = packSrc + "    by->"+getWriteType(propertyVo.type)+"("+propertyVo.name+");\n";
+					var tmpReadType:String = getReadType(propertyVo.type);
+					if("" == tmpReadType)
+						unpackStr = unpackStr + "    "+propertyVo.name+".UnpackMsg(data);\n";
+					else
+						unpackStr = unpackStr + "    "+propertyVo.name+" = data->"+tmpReadType+"();\n";
 					codeStr = codeStr +transformType(propertyVo.type)+" "+propertyVo.name+" ;\n";
 				}
 			}
@@ -375,24 +388,32 @@ package creater
 					else
 					{
 						subType = createPvo.className+"_"+propertyVo.name;
-						var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
-						createPvo.className = subType;
-						createPvo.classDesc = propertyVo.desc;
-						createPvo.propertyList = propertyVo.subPropertyVos;
-						createProtoClass(createPvo);
-						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-						//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
+//						var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
+//						createPvo.className = subType;
+//						createPvo.classDesc = propertyVo.desc;
+//						createPvo.propertyList = propertyVo.subPropertyVos;
+//						createProtoClass(createPvo);
+//						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+//						//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
 					}
 					packSrc = packSrc + "    for (std::vector<"+subType+"*>::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-					packSrc = packSrc + "      by->ReadFromByteArray( (*it)->PackMsg() );\n";
+					packSrc = packSrc + "      by->ReadFromByteArray( (*it)->PackMsg());\n";
 					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    for (int i = 0; i < "+
 						propertyVo.name+"Len; ++i){\n      "+subType+" *tmp_"+subType+" = new "+subType+"();\n" +
-						"      tmp_"+subType+"->UnpackMsg(data);\n      testArr.push_back(tmp_"+subType+");\n    }";
+						"      tmp_"+subType+"->UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
 					includeHead += "#include <customData/"+subType+".h>\n";
 					codeStr = codeStr +transformType(propertyVo.type)+"<"+subType+"*> "+propertyVo.name+" ;";
 				}else{
-					packSrc = packSrc + "    by->"+getWriteType(propertyVo.type)+"("+propertyVo.name+");\n";
-					unpackStr = unpackStr + "    "+propertyVo.name+" = data->"+getReadType(propertyVo.type)+"();\n";
+					var tmpWriteType:String = getWriteType(propertyVo.type);
+					if("" == tmpWriteType)
+						packSrc = packSrc + "    by->ReadFromByteArray("+propertyVo.name+".PackMsg());\n";
+					else
+						packSrc = packSrc + "    by->"+getWriteType(propertyVo.type)+"("+propertyVo.name+");\n";
+					var tmpReadType:String = getReadType(propertyVo.type);
+					if("" == tmpReadType)
+						unpackStr = unpackStr + "    "+propertyVo.name+".UnpackMsg(data);\n";
+					else
+						unpackStr = unpackStr + "    "+propertyVo.name+" = data->"+tmpReadType+"();\n";
 					codeStr = codeStr +transformType(propertyVo.type)+" "+propertyVo.name+" ;\n";
 				}
 			}
