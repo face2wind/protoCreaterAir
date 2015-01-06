@@ -337,6 +337,10 @@ package creater
 		private function createProtoClass(createPvo:ProtocalClassVo):void
 		{
 			var srcPath:String = ConfigManager.getInstance().configXml.as3SrcPath + "/socketCommand/customData/";
+//			var file:File = File.documentsDirectory.resolvePath(srcPath);
+//			if(file.isDirectory) // 先清空
+//				file.deleteFile();
+			
 			var codeStr:String = "package socketCommand.customData\n{\n	/**\n	 * "+createPvo.classDesc+
 				"<br/>\n	 * ( 此文件由工具生成，勿手动修改)\n	 * @author face2wind\n	 */\n	public class "+createPvo.className+"\n	{\n		public function "+createPvo.className+"()\n		{\n		}\n";
 			var propertyVo:PropertyVo;

@@ -355,6 +355,9 @@ package creater
 		private function createProtoClass(createPvo:ProtocalClassVo):void
 		{
 			var srcPath:String = ConfigManager.getInstance().configXml.cppSrcPath + "/customData/";
+			//			var file:File = File.documentsDirectory.resolvePath(srcPath);
+			//			if(file.isDirectory) // 先清空
+			//				file.deleteFile();
 			var fileStream:FileStream = new FileStream();
 			var filePath:File;
 			var codeStr:String;
