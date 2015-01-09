@@ -399,7 +399,7 @@ package creater
 //						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
 //						//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
 					}
-					packSrc = packSrc + "    for (std::vector<"+subType+"*>::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+"*>::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
 					packSrc = packSrc + "      by->ReadFromByteArray( (*it)->PackMsg());\n";
 					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    for (int i = 0; i < "+
 						propertyVo.name+"Len; ++i){\n      "+subType+" *tmp_"+subType+" = new "+subType+"();\n" +

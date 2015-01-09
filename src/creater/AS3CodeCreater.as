@@ -127,6 +127,18 @@ package creater
 				"\n	{\n		public function GameCommandMap()\n		{\n			super();\n		}\n\n		/**\n		 *  初始化S2C的协议类对象列表\n		 */" +
 				"\n		protected override function initScmdClassDic():void\n		{\n";
 			var extClassNameList:Array = s2cExtClassNameList;//c2sExtClassNameList.concat(s2cExtClassNameList);
+			function appendMacroClassNames(data:Array):Array
+			{
+				var allmacroList:Array = ProtoDataManager.getInstance().getAllMacroClassList();
+				for (var k:int = 0; k < allmacroList.length; k++) 
+				{
+					var macroVo:ProtocalClassVo = allmacroList[k];
+					if(data.indexOf(macroVo.className) == -1)
+						data.push(macroVo.className);
+				}
+				return data;
+			}
+			extClassNameList = appendMacroClassNames(extClassNameList);
 			for (i = 0; i < extClassNameList.length; i++) 
 			{
 				codeStr = codeStr + "			_scmdClassDic[\""+extClassNameList[i]+"\"] = "+extClassNameList[i]+";\n"
@@ -135,6 +147,8 @@ package creater
 			
 			var attributeStrList:Array = [];
 			extClassNameList = c2sExtClassNameList.concat(s2cExtClassNameList);
+			extClassNameList = appendMacroClassNames(extClassNameList);
+			
 			for (i = 0; i < extClassNameList.length; i++) 
 			{
 				var cName:String = extClassNameList[i];
