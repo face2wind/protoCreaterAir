@@ -321,7 +321,6 @@ package manager
 			if(0 == protoVo.s2cProtoVo.propertyList.length)
 				protoVo.s2cProtoVo.propertyList = null;
 			protocolClassVoDic[protoVo.s2cProtoVo.className] = protoVo.s2cProtoVo;
-			
 			return protoVo;
 		}
 		
@@ -353,11 +352,13 @@ package manager
 				var subPList:XMLList = xmlData.property;
 				for (var i:int = 0; i < subPList.length(); i++) 
 					pVo.subPropertyVos.push( analyzeProperty(subPList[i], className, classDesc) );
-				if( 1 < subPList.length() )
+				if( 0 < subPList.length())
 				{ // 数组里超过1个属性，创建一个自定义类
-					var cXml:XML = new XML("<xml><macro name=\""+className+"_"+pVo.name+"\" desc=\""+classDesc+"\"/></xml>");
-					cXml.macro[0].insertChildAfter(null, subPList);
-					analyzeMacro(cXml);
+					if(SocketDataType.isNormalType(subPList[0].@type)){
+						var cXml:XML = new XML("<xml><macro name=\""+className+"_"+pVo.name+"\" desc=\""+classDesc+"\"/></xml>");
+						cXml.macro[0].insertChildAfter(null, subPList);
+						analyzeMacro(cXml);
+					}
 				}
 			}
 			else

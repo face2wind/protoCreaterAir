@@ -328,9 +328,10 @@ package creater
 					else
 						packSrc = packSrc + "    by->"+getWriteType(propertyVo.type)+"("+propertyVo.name+");\n";
 					var tmpReadType:String = getReadType(propertyVo.type);
-					if("" == tmpReadType)
+					if("" == tmpReadType){
 						unpackStr = unpackStr + "    "+propertyVo.name+".UnpackMsg(data);\n";
-					else
+						includeHead += "#include <customData/"+propertyVo.type+".h>\n";
+					}else
 						unpackStr = unpackStr + "    "+propertyVo.name+" = data->"+tmpReadType+"();\n";
 					codeStr = codeStr +transformType(propertyVo.type)+" "+propertyVo.name+" ;\n";
 				}
@@ -413,9 +414,10 @@ package creater
 					else
 						packSrc = packSrc + "    by->"+getWriteType(propertyVo.type)+"("+propertyVo.name+");\n";
 					var tmpReadType:String = getReadType(propertyVo.type);
-					if("" == tmpReadType)
+					if("" == tmpReadType){
 						unpackStr = unpackStr + "    "+propertyVo.name+".UnpackMsg(data);\n";
-					else
+						includeHead += "#include <customData/"+propertyVo.type+".h>\n";
+					}else
 						unpackStr = unpackStr + "    "+propertyVo.name+" = data->"+tmpReadType+"();\n";
 					codeStr = codeStr +transformType(propertyVo.type)+" "+propertyVo.name+" ;\n";
 				}
