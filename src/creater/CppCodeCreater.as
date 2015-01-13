@@ -296,31 +296,18 @@ package creater
 					) // 只有一个非基础属性，则直接用这个属性做为数组的类型，否则，生成一个类
 					{
 						subType = propertyVo.subPropertyVos[0].type;
-						//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-						//						packSrc = packSrc + "      by->"+getWriteType(propertyVo.subPropertyVos[0].type)+"(*it);\n";
-						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-						//						unpackStr = unpackStr + "      (*it) = data->"+getReadType(propertyVo.subPropertyVos[0].type)+"();\n";
 					}
 					else
 					{
 						subType = scStr+protoVo.protoId+"_"+propertyVo.name;
-//						var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
-//						createPvo.className = subType;
-//						createPvo.classDesc = propertyVo.desc;
-//						createPvo.propertyList = propertyVo.subPropertyVos;
-//						createProtoClass(createPvo);
-//						//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						//						packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg() );\n";
-//						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
 					}
-					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+"*>::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-					packSrc = packSrc + "      by->ReadFromByteArray( (*it)->PackMsg());\n";
+					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+					packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg());\n";
 					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    for (int i = 0; i < "+
-						propertyVo.name+"Len; ++i){\n      "+subType+" *tmp_"+subType+" = new "+subType+"();\n" +
-						"      tmp_"+subType+"->UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
+						propertyVo.name+"Len; ++i){\n      "+subType+" tmp_"+subType+";\n" +
+						"      tmp_"+subType+".UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
 					includeHead += "#include <customData/"+subType+".h>\n";
-					codeStr = codeStr +transformType(propertyVo.type)+"<"+subType+"*> "+propertyVo.name+" ;";
+					codeStr = codeStr +transformType(propertyVo.type)+"<"+subType+"> "+propertyVo.name+" ;";
 				}else{
 					var tmpWriteType:String = getWriteType(propertyVo.type);
 					if("" == tmpWriteType)
@@ -384,29 +371,18 @@ package creater
 					) // 只有一个非基础属性，则直接用这个属性做为数组的类型，否则，生成一个类
 					{
 						subType = propertyVo.subPropertyVos[0].type;
-						//						packSrc = packSrc + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-						//						packSrc = packSrc + "      by->"+getWriteType(propertyVo.subPropertyVos[0].type)+"(*it);\n";
-						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-						//						unpackStr = unpackStr + "      (*it) = data->"+getReadType(propertyVo.subPropertyVos[0].type)+"();\n";
 					}
 					else
 					{
 						subType = createPvo.className+"_"+propertyVo.name;
-//						var createPvo:ProtocalClassVo = ObjectPool.getObject(ProtocalClassVo);
-//						createPvo.className = subType;
-//						createPvo.classDesc = propertyVo.desc;
-//						createPvo.propertyList = propertyVo.subPropertyVos;
-//						createProtoClass(createPvo);
-//						//						unpackStr = unpackStr + "    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-//						//						unpackStr = unpackStr + "      it->UnpackMsg(data);\n";
 					}
-					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+"*>::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
-					packSrc = packSrc + "      by->ReadFromByteArray( (*it)->PackMsg());\n";
+					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+					packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg());\n";
 					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    for (int i = 0; i < "+
-						propertyVo.name+"Len; ++i){\n      "+subType+" *tmp_"+subType+" = new "+subType+"();\n" +
-						"      tmp_"+subType+"->UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
+						propertyVo.name+"Len; ++i){\n      "+subType+" tmp_"+subType+";\n" +
+						"      tmp_"+subType+".UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
 					includeHead += "#include <customData/"+subType+".h>\n";
-					codeStr = codeStr +transformType(propertyVo.type)+"<"+subType+"*> "+propertyVo.name+" ;";
+					codeStr = codeStr +transformType(propertyVo.type)+"<"+subType+"> "+propertyVo.name+" ;";
 				}else{
 					var tmpWriteType:String = getWriteType(propertyVo.type);
 					if("" == tmpWriteType)
