@@ -303,7 +303,7 @@ package creater
 					}
 					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
 					packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg());\n";
-					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    for (int i = 0; i < "+
+					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    "+propertyVo.name+".clear();\n    for (int i = 0; i < "+
 						propertyVo.name+"Len; ++i){\n      "+subType+" tmp_"+subType+";\n" +
 						"      tmp_"+subType+".UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
 					includeHead += "#include <customData/"+subType+".h>\n";
@@ -378,7 +378,7 @@ package creater
 					}
 					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
 					packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg());\n";
-					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    for (int i = 0; i < "+
+					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    "+propertyVo.name+".clear();\n    for (int i = 0; i < "+
 						propertyVo.name+"Len; ++i){\n      "+subType+" tmp_"+subType+";\n" +
 						"      tmp_"+subType+".UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
 					includeHead += "#include <customData/"+subType+".h>\n";
