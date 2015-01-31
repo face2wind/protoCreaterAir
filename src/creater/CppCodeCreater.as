@@ -162,12 +162,12 @@ package creater
 			{
 				case SocketDataType.INT8:
 				case SocketDataType.INT16:
-				case SocketDataType.INT32:realType="long";break;
+				case SocketDataType.INT32:realType="unsigned int";break;
 				case SocketDataType.UINT8:
 				case SocketDataType.UINT16:
-				case SocketDataType.UINT32:realType="unsigned long";break;
+				case SocketDataType.UINT32:realType="unsigned int";break;
 				case SocketDataType.INT64:
-				case SocketDataType.UINT64:realType="double";break;
+				case SocketDataType.UINT64:realType="long long";break;
 				case SocketDataType.ARRAY:realType="std::vector";break;
 				case SocketDataType.STRING:realType="std::string";break;
 			}
@@ -184,14 +184,14 @@ package creater
 			var realType:String = "";
 			switch(type)
 			{
-				case SocketDataType.INT8:realType="ReadChar";break;
-				case SocketDataType.INT16:realType="ReadShort";break;
-				case SocketDataType.INT32:realType="ReadLong";break;
-				case SocketDataType.UINT8:realType="ReadChar";break;
-				case SocketDataType.UINT16:realType="ReadShort";break;
-				case SocketDataType.UINT32:realType="ReadLong";break;
+				case SocketDataType.INT8:realType="ReadUnsignedInt8";break;
+				case SocketDataType.INT16:realType="ReadUnsignedInt16";break;
+				case SocketDataType.INT32:realType="ReadUnsignedInt32";break;
+				case SocketDataType.UINT8:realType="ReadUnsignedInt8";break;
+				case SocketDataType.UINT16:realType="ReadUnsignedInt16";break;
+				case SocketDataType.UINT32:realType="ReadUnsignedInt32";break;
 				case SocketDataType.INT64:
-				case SocketDataType.UINT64:realType="ReadDouble";break;
+				case SocketDataType.UINT64:realType="ReadUnsignedInt64";break;
 				case SocketDataType.ARRAY:realType="ReadVector";break; // 无效的，不这里处理
 				case SocketDataType.STRING:realType="ReadString";break;
 			}
@@ -208,14 +208,14 @@ package creater
 			var realType:String = "";
 			switch(type)
 			{
-				case SocketDataType.INT8:realType="WriteChar";break;
-				case SocketDataType.INT16:realType="WriteShort";break;
-				case SocketDataType.INT32:realType="WriteLong";break;
-				case SocketDataType.UINT8:realType="WriteChar";break;
-				case SocketDataType.UINT16:realType="WriteShort";break;
-				case SocketDataType.UINT32:realType="WriteLong";break;
+				case SocketDataType.INT8:realType="WriteUnsignedInt8";break;
+				case SocketDataType.INT16:realType="WriteUnsignedInt16";break;
+				case SocketDataType.INT32:realType="WriteUnsignedInt32";break;
+				case SocketDataType.UINT8:realType="WriteUnsignedInt8";break;
+				case SocketDataType.UINT16:realType="WriteUnsignedInt16";break;
+				case SocketDataType.UINT32:realType="WriteUnsignedInt32";break;
 				case SocketDataType.INT64:
-				case SocketDataType.UINT64:realType="WriteDouble";break;
+				case SocketDataType.UINT64:realType="WriteUnsignedInt64";break;
 				case SocketDataType.ARRAY:realType="writeVector";break; // 无效的，不这里处理
 				case SocketDataType.STRING:realType="WriteString";break;
 			}
@@ -301,9 +301,9 @@ package creater
 					{
 						subType = scStr+protoVo.protoId+"_"+propertyVo.name;
 					}
-					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+					packSrc = packSrc + "    by->WriteUnsignedInt16("+propertyVo.name+".size());\n    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
 					packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg());\n";
-					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    "+propertyVo.name+".clear();\n    for (int i = 0; i < "+
+					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadUnsignedInt16();\n    "+propertyVo.name+".clear();\n    for (int i = 0; i < "+
 						propertyVo.name+"Len; ++i){\n      "+subType+" tmp_"+subType+";\n" +
 						"      tmp_"+subType+".UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
 					includeHead += "#include <customData/"+subType+".h>\n";
@@ -376,9 +376,9 @@ package creater
 					{
 						subType = createPvo.className+"_"+propertyVo.name;
 					}
-					packSrc = packSrc + "    by->WriteShort("+propertyVo.name+".size());\n    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
+					packSrc = packSrc + "    by->WriteUnsignedInt16("+propertyVo.name+".size());\n    for (std::vector<"+subType+">::iterator it = "+propertyVo.name+".begin() ; it != "+propertyVo.name+".end(); ++it)\n";
 					packSrc = packSrc + "      by->ReadFromByteArray( it->PackMsg());\n";
-					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadShort();\n    "+propertyVo.name+".clear();\n    for (int i = 0; i < "+
+					unpackStr = unpackStr + "    int "+propertyVo.name+"Len = data->ReadUnsignedInt16();\n    "+propertyVo.name+".clear();\n    for (int i = 0; i < "+
 						propertyVo.name+"Len; ++i){\n      "+subType+" tmp_"+subType+";\n" +
 						"      tmp_"+subType+".UnpackMsg(data);\n      "+propertyVo.name+".push_back(tmp_"+subType+");\n    }";
 					includeHead += "#include <customData/"+subType+".h>\n";
